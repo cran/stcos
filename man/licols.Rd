@@ -11,7 +11,7 @@ licols(X, tol = 1e-10, quiet = FALSE)
 
 \item{tol}{A tolerance for rank estimation. Default is 1e-10.}
 
-\item{quiet}{A boolean; if FALSE, print a warning about computation time if \code{X} is large.}
+\item{quiet}{logical; if FALSE, print a warning about computation time if \code{X} is large.}
 }
 \value{
 \code{Xsub} contains the extracted columns of \code{X} and \code{idx}
@@ -19,14 +19,16 @@ contains the indices (into X) of those columns. The elapsed time is stored in
 \code{elapsed.sec}.
 }
 \description{
+Extract a linearly independent set of columns of a matrix.
+}
+\details{
 An R version of a Matlab \code{licols} function given in
-\url{https://www.mathworks.com/matlabcentral/answers/108835-how-to-get-only-linearly-independent-rows-in-a-matrix-or-to-remove-linear-dependency-b-w-rows-in-a-m}.
-Extract a linearly independent set of columns of a given matrix \code{X}.
+\href{https://www.mathworks.com/matlabcentral/answers/108835-how-to-get-only-linearly-independent-rows-in-a-matrix-or-to-remove-linear-dependency-b-w-rows-in-a-m#answer_117458}{this MathWorks forum post}.
 }
 \examples{
-x <- sample(1:3, size = 20, replace = TRUE)
-Z <- model.matrix(~ as.factor(x) - 1)
-X <- cbind(1, Z)
+x = sample(1:3, size = 20, replace = TRUE)
+Z = model.matrix(~ as.factor(x) - 1)
+X = cbind(1, Z)
 licols(X)
 
 }

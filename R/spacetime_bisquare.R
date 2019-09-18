@@ -1,29 +1,28 @@
 #' SpaceTime Bisquare Basis
 #' 
-#' An \code{\link{R6Class}} representing the space-time bisquare basis.
+#' An \code{R6Class} representing the space-time bisquare basis.
 #' 
 #' @section Usage:
 #' \preformatted{
-#' basis <- SpaceTimeBisquareBasis$new(knots.x, knots.y, knots.t,
-#'     w.s, w.t)
-#' basis$compute(x, y, time)
-#' basis$get_dim()
-#' basis$get_cutpoints()
-#' basis$get_rl()
-#' basis$get_ws()
-#' basis$get_wt()
+#' bs = SpaceTimeBisquareBasis$new(knots_x, knots_y, knots_t,
+#'     w_s, w_t)
+#' bs$compute(x, y, time)
+#' bs$get_dim()
+#' bs$get_cutpoints()
+#' bs$get_ws()
+#' bs$get_wt()
 #' }
 #' 
 #' @section Arguments:
 #' \itemize{
-#' \item \code{knots.x} x-coordinate of knot points.
-#' \item \code{knots.y} y-coordinate of knot points.
-#' \item \code{knots.t} time coordinate of knot points.
-#' \item \code{w.s} (Original, before transformation) spatial radius.
-#' \item \code{w.t} Temporal radius.
-#' \item \code{x} Vector of x-coordinates for points on which to evaluate the basis.
-#' \item \code{y} Vector of y-coordinates for points on which to evaluate the basis.
-#' \item \code{time} Vector of time coordinates for points on which to evaluate the basis.
+#' \item \code{knots_x} numeric vector; x-coordinates of knot points.
+#' \item \code{knots_y} numeric vector; y-coordinates of knot points.
+#' \item \code{knots_t} numeric vector; time coordinate of knot points.
+#' \item \code{w_s} numeric; spatial radius for the basis.
+#' \item \code{w_t} numeric; temporal radius for the basis.
+#' \item \code{x} numeric vector; x-coordinates for points to evaluate.
+#' \item \code{y} numeric vector; y-coordinates for points to evaluate.
+#' \item \code{time} numeric vector; time coordinates for points to evaluate.
 #' }
 #' 
 #' @section Methods:
@@ -31,11 +30,7 @@
 #' \item \code{new} Create a new \code{SpaceTimeBisquareBasis} object.
 #' \item \code{get_dim} Get the number of cutpoints used to construct this basis.
 #' \item \code{get_cutpoints} Get the cutpoints used to construct this basis.
-#' \item \code{get_rl} Get the transformed spatial radius. The transformation is
-#' based on quantiles of distances between knots.
-#' \item \code{get_ws} Get the original spatial radius used to construct this
-#' basis. This is transformed before it is applied to account for the geography
-#' being used.
+#' \item \code{get_ws} Get the spatial radius used to construct this basis.
 #' \item \code{get_wt} Get the temporal radius used to construct this basis.
 #' \item \code{compute} Evaluate this basis on specific points.
 #' }
@@ -44,59 +39,52 @@
 #' 
 #' @examples
 #' set.seed(1234)
-#' seq.x <- seq(0, 1, length.out = 3)
-#' seq.y <- seq(0, 1, length.out = 3)
-#' seq.t <- seq(0, 1, length.out = 3)
-#' knots = expand.grid(seq.x, seq.y, seq.t)
-#' x <- runif(50)
-#' y <- runif(50)
-#' t <- sample(1:3, size = 50, replace = TRUE)
+#' seq_x = seq(0, 1, length.out = 3)
+#' seq_y = seq(0, 1, length.out = 3)
+#' seq_t = seq(0, 1, length.out = 3)
+#' knots = expand.grid(seq_x, seq_y, seq_t)
+#' x = runif(50)
+#' y = runif(50)
+#' t = sample(1:3, size = 50, replace = TRUE)
 #' 
-#' basis <- SpaceTimeBisquareBasis$new(knots[,1], knots[,2], knots[,3], w.s = 0.5, w.t = 1)
-#' basis$compute(x, y, t)
-#' basis$get_dim()
-#' basis$get_cutpoints()
-#' basis$get_rl()
-#' basis$get_ws()
-#' basis$get_wt()
+#' bs = SpaceTimeBisquareBasis$new(knots[,1], knots[,2], knots[,3], w_s = 0.5, w_t = 1)
+#' bs$compute(x, y, t)
+#' bs$get_dim()
+#' bs$get_cutpoints()
+#' bs$get_ws()
+#' bs$get_wt()
 #' 
 #' # Plot the (spatial) knots and the points at which we evaluated the basis
 #' plot(knots[,1], knots[,2], pch = 4, cex = 1.5, col = "red")
 #' text(x, y, labels = t, cex = 0.75)
 #' 
 #' # Draw a circle representing the basis' radius around one of the knot points
-#' tseq <- seq(0, 2*pi, length=100) 
-#' rad <- basis$get_rl()
-#' coords <- cbind(rad * cos(tseq) + seq.x[2], rad * sin(tseq) + seq.y[2])
+#' tseq = seq(0, 2*pi, length=100) 
+#' rad = bs$get_ws()
+#' coords = cbind(rad * cos(tseq) + seq_x[2], rad * sin(tseq) + seq_y[2])
 #' lines(coords, col = "red")
 NULL
 
 #' @export
 #' @docType class
-SpaceTimeBisquareBasis <- R6Class("SpaceTimeBisquareBasis",
+SpaceTimeBisquareBasis = R6Class("SpaceTimeBisquareBasis",
 	lock_objects = TRUE,
 	lock_class = TRUE,
 	private = list(
 		r = NULL,
 		cutpoints = NULL,
-		w.s = NULL,
-		w.t = NULL,
-		rl = NULL
+		w_s = NULL,
+		w_t = NULL
 	),
 	public = list(
-		initialize = function(knots.x, knots.y, knots.t, w.s, w.t) {
-			r <- length(knots.x)
-			stopifnot(length(knots.y) == r)
-			stopifnot(length(knots.t) == r)
-			private$cutpoints <- cbind(knots.x, knots.y, knots.t)
-			private$w.s <- w.s
-			private$w.t <- w.t
-			private$r <- r
-
-			# Jon's code computes basis with rl instead of w.s
-			# Use type 1 quantile algorithm to match Matlab 
-			G <- dist(private$cutpoints)
-			private$rl <- as.numeric(w.s * quantile(G[G > 0], prob = 0.05, type = 1))
+		initialize = function(knots_x, knots_y, knots_t, w_s, w_t) {
+			r = length(knots_x)
+			stopifnot(length(knots_y) == r)
+			stopifnot(length(knots_t) == r)
+			private$cutpoints = cbind(knots_x, knots_y, knots_t)
+			private$w_s = w_s
+			private$w_t = w_t
+			private$r = r
 		},
 		get_dim = function() {
 			private$r
@@ -104,18 +92,15 @@ SpaceTimeBisquareBasis <- R6Class("SpaceTimeBisquareBasis",
 		get_cutpoints = function() {
 			private$cutpoints
 		},
-		get_rl = function() {
-			private$rl
-		},
 		get_ws = function() {
-			private$w.s
+			private$w_s
 		},
 		get_wt = function() {
-			private$w.t
+			private$w_t
 		},
 		compute = function(x, y, time) {
-			X <- cbind(x, y, time)
-			S <- compute_basis_spt(X, private$cutpoints, private$rl, private$w.t)
+			X = cbind(x, y, time)
+			S = compute_basis_spt(X, private$cutpoints, private$w_s, private$w_t)
 			return(S)
 		}
 	)

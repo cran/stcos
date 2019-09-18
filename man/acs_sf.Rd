@@ -33,7 +33,7 @@ An \code{sf} object with ACS estimates for:
 \details{
 Shapefiles were gathered via the \code{tigris} package, and ACS estimates were
 downloaded from the American FactFinder \url{http://factfinder.census.gov}.
-Data was assembled on 2/28/2019. See \code{data-prep-aff.R} in the Columbia
+Data were assembled on 2/28/2019. See \code{data-prep-aff.R} in the Columbia
 example code for details.
 }
 \keyword{datasets}

@@ -1,7 +1,7 @@
 Package: stcos
 Type: Package
 Title: Space-Time Change of Support
-Version: 0.2.0
+Version: 0.2.1
 Authors@R: c(
 	person(c("Andrew", "M."), "Raim", email = "andrew.raim@gmail.com", role = c("aut", "cre")),
 	person(c("Scott", "H."), "Holan", role = c("aut", "res")),
@@ -26,6 +26,6 @@ RoxygenNote: 6.1.1
 Encoding: UTF-8
 LazyData: true
 NeedsCompilation: yes
-Packaged: 2019-09-18 17:57:28 UTC; araim
+Packaged: 2019-12-06 03:00:15 UTC; araim
 Repository: CRAN
-Date/Publication: 2019-09-18 18:30:03 UTC
+Date/Publication: 2019-12-06 06:10:02 UTC

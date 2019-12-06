@@ -53,7 +53,7 @@ dom = acs5_2013[c(1,5,8,12),]
 pts = rdomain(10000, dom)
 
 # Convert the points to an sf object if desired
-dat = data.frame(pts)
-pts_sf = st_as_sf(dat, coords = c("X1", "X2"), crs = st_crs(dom))
+dat = data.frame(x = pts[,1], y = pts[,2])
+pts_sf = st_as_sf(dat, coords = c("x", "y"), crs = st_crs(dom))
 
 }

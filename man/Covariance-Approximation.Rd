@@ -2,13 +2,10 @@
 % Please edit documentation in R/cov_approx.R
 \name{Covariance Approximation}
 \alias{Covariance Approximation}
-\alias{cov_approx_varone}
 \alias{cov_approx_randwalk}
 \alias{cov_approx_blockdiag}
 \title{Best Approximation to Covariance Structure}
 \usage{
-cov_approx_varone(Delta, M, S)
-
 cov_approx_randwalk(Delta, S)
 
 cov_approx_blockdiag(Delta, S)
@@ -16,9 +13,6 @@ cov_approx_blockdiag(Delta, S)
 \arguments{
 \item{Delta}{Covariance (\eqn{n \times n}) for observations within a time
 point for the process whose variance we wish to approximate.}
-
-\item{M}{Propagator matrix (\eqn{n \times n}) for VAR(1) covariance
-structure.}
 
 \item{S}{Design matrix (\eqn{N \times r}) of basis functions evaluated on
 the fine-level process over \eqn{T = N / n} time points.}
@@ -46,7 +40,7 @@ solution is given by
   \bm{K} = (\bm{S}^\top \bm{S})^{-1} \bm{S}^\top \bm{\Sigma} \bm{S} (\bm{S}^\top \bm{S})^{-1}.
 }
 
-We provide functions to handle three possible structures for the target
+We provide functions to handle some possible structures for the target
 covariance, which are all in the form
 \deqn{
   \bm{\Sigma} =
@@ -60,23 +54,6 @@ covariance, which are all in the form
 }
 
 \itemize{
-\item \code{cov_approx_moran} assumes \eqn{\bm{\Sigma}} is based on the
-autocovariance function of a VAR(1) process
-\deqn{
-  \bm{Y}_{t+1} = \bm{M} \bm{Y}_{t} + \bm{\epsilon}_t, \quad \bm{\epsilon}_t \sim \textrm{N}(\bm{0}, \bm{\Delta}).
-}
-using a given \eqn{\bm{M}}, so that
-\deqn{
-  \bm{\Gamma}(t+h,t) = \bm{M}^h \bm{\Gamma}(0), \quad \textrm{if $h \geq 0$},
-}
-\deqn{
-  \bm{\Gamma}(t+h,t) = [\bm{M}^{-h} \bm{\Gamma}(0)]^\top, \quad \textrm{if $h < 0$},
-}
-where
-\deqn{
-  \textrm{vec}(\bm{\Gamma}(0)) = [\bm{I} - \bm{M} \otimes \bm{M}]^{-1} \textrm{vec}(\bm{\Delta}).
-}
-
 \item \code{cov_approx_randwalk} assumes \eqn{\bm{\Sigma}} is based on the
 autocovariance function of a random walk
 \deqn{
@@ -84,10 +61,7 @@ autocovariance function of a random walk
 }
 so that
 \deqn{
-  \bm{\Gamma}(t+h,t) = t \bm{\Delta}, \quad \textrm{if $h \geq 0$},
-}
-\deqn{
-  \bm{\Gamma}(t+h,t) = (t - |h|) \bm{\Delta}, \quad \textrm{if $-t < h < 0$}.
+  \bm{\Gamma}(s,t) = \min(s,t) \bm{\Delta}.
 }
 
 \item \code{cov_approx_blockdiag} assumes \eqn{\bm{\Sigma}} is based on
@@ -96,10 +70,7 @@ so that
 }
 which are independent across \eqn{t}, so that
 \deqn{
-  \bm{\Gamma}(s,s) = \bm{\Delta},
-}
-\deqn{
-  \bm{\Gamma}(s,t) = \bm{0}, \quad \textrm{if $s \neq t$}.
+  \bm{\Gamma}(s,t) = I(s = t) \bm{\Delta},
 }
 }
 In any case \eqn{\bm{\Sigma}} may be large and we avoid computing it in its entirety.

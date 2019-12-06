@@ -26,7 +26,7 @@ An R version of a Matlab \code{licols} function given in
 \href{https://www.mathworks.com/matlabcentral/answers/108835-how-to-get-only-linearly-independent-rows-in-a-matrix-or-to-remove-linear-dependency-b-w-rows-in-a-m#answer_117458}{this MathWorks forum post}.
 }
 \examples{
-x = sample(1:3, size = 20, replace = TRUE)
+x = 0:19 \%\% 3 + 1
 Z = model.matrix(~ as.factor(x) - 1)
 X = cbind(1, Z)
 licols(X)

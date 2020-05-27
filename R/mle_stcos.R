@@ -1,20 +1,20 @@
 #' MLE for STCOS Model
 #'
 #' @param z Vector which represents the outcome; assumed to be direct
-#'        estimates from the survey.
+#'   estimates from the survey.
 #' @param v Vector which represents direct variance estimates from the survey.
-#'        The diagonal of the matrix \eqn{\bm{V}} described in the details.
+#'   The diagonal of the matrix \eqn{\bm{V}} described in the details.
 #' @param H Matrix of overlaps between source and fine-level supports.
 #' @param S Design matrix for basis decomposition.
 #' @param K Variance of the random coefficient \eqn{\bm{\eta}}
 #' @param init A list containing the initial values in the MCMC for
-#'        \code{sig2xi} and \code{sig2K}. If not specified, we select an
-#'        arbitrary initial value.
+#'   \code{sig2xi} and \code{sig2K}. If not specified, we select an
+#'   arbitrary initial value.
 #' @param optim_control This is passed as the \code{control} argument to
-#'        \code{optim}. Note that the value \code{fnscale} is ignored if
-#'        specified.
+#'   \code{optim}. Note that the value \code{fnscale} is ignored if
+#'   specified.
 #' @param optim_method Method to be used for likelihood maximization by
-#'        \code{optim}. Default is \code{L-BFGS-B}.
+#'   \code{optim}. Default is \code{L-BFGS-B}.
 #'
 #' @return A list containing maximum likelihood estimates.
 #'
@@ -65,8 +65,7 @@ mle_stcos = function(z, v, H, S, K, init = NULL,
 		sig2xi = exp(par[2])
 
 		Delta = sig2K * SKST + Diagonal(x = sig2xi + v)
-		Delta_inv_H = solve(Delta, H)
-		mu_hat = pinv(as.matrix(t(H) %*% Delta_inv_H)) %*% (t(Delta_inv_H) %*% z)
+		mu_hat = wls(z, H, Delta)
 		z_hat = H %*% mu_hat
 
 		logdet = as.numeric( determinant(Delta)$modulus )
@@ -83,56 +82,20 @@ mle_stcos = function(z, v, H, S, K, init = NULL,
 
 	sig2K_hat = exp(res$par[1])
 	sig2xi_hat = exp(res$par[2])
-	Delta_hat = sig2K_hat * S %*% K %*% t(S) + Diagonal(x = sig2xi_hat + v)
-	Delta_inv_H_hat = solve(Delta_hat, H)
-	mu_hat = pinv(as.matrix(t(H) %*% Delta_inv_H_hat)) %*% (t(Delta_inv_H_hat) %*% z)
+	Delta = sig2K_hat * SKST + Diagonal(x = sig2xi_hat + v)
+	mu_hat = wls(z, H, Delta)
+	z_hat = H %*% mu_hat
 
 	list(sig2K_hat = sig2K_hat, sig2xi_hat = sig2xi_hat,
-		mu_hat = as.numeric(mu_hat), res = res, elapsed_sec = elapsed_sec)
+		mu_hat = as.numeric(mu_hat), res = res, elapsed_sec = elapsed_sec,
+		loglik = res$value)
 }
 
-
-# TBD: Remove this after testing
-#' @name mle_stcos
-#' @export
-mle_stcos_v2 = function(z, v, H, S, K, init = NULL,
-	optim_control = list(), optim_method = "L-BFGS-B")
+# For the model y = X beta + eps, eps ~ N(0, Sigma),
+# Compute the Weighted Least Squares estimate for beta, with Sigma given.
+# Also compute y_hat = X beta_hat
+wls = function(y, X, Sigma)
 {
-	N = nrow(H)
-	n = ncol(H)
-	r = ncol(S)
-
-	# Initial values
-	if (is.null(init)) { init = list() }
-	if (is.null(init$sig2K)) { init$sig2K = 1 }
-
-	SKST = as.matrix(S %*% K %*% t(S))
-	loglik = function(par) {
-		sig2K = exp(par[1])
-
-		Delta = sig2K * SKST + Diagonal(x = v)
-		Delta_inv_H = solve(Delta, H)
-		mu_hat = pinv(as.matrix(t(H) %*% Delta_inv_H)) %*% (t(Delta_inv_H) %*% z)
-		z_hat = as.numeric(H %*% mu_hat)
-
-		logdet = as.numeric( determinant(Delta)$modulus )
-		ll = -N/2 * log(2*pi) - logdet / 2 - sum((z - z_hat) * solve(Delta, z - z_hat)) / 2
-		# mvtnorm::dmvnorm(t(z), t(z_hat), as.matrix(Delta), log = TRUE)
-		return(ll)
-	}
-
-	optim_control$fnscale = -1
-	st = Sys.time()
-	par_init = c(log(init$sig2K))
-	res = optim(par = par_init, loglik, method = optim_method,
-		control = optim_control)
-	elapsed_sec = as.numeric(Sys.time() - st, unit = "secs")
-
-	sig2K_hat = exp(res$par[1])
-	Delta_hat = sig2K_hat * S %*% K %*% t(S) + Diagonal(x = v)
-	Delta_inv_H_hat = solve(Delta_hat, H)
-	mu_hat = pinv(as.matrix(t(H) %*% Delta_inv_H_hat)) %*% (t(Delta_inv_H_hat) %*% z)
-
-	list(sig2K_hat = sig2K_hat,
-		mu_hat = as.numeric(mu_hat), res = res, elapsed_sec = elapsed_sec)
+	Sigma_inv_X = solve(Sigma, X)
+	pinv(as.matrix(t(X) %*% Sigma_inv_X)) %*% (t(Sigma_inv_X) %*% y)
 }

@@ -2,14 +2,18 @@
 % Please edit documentation in R/mle_stcos.R
 \name{mle_stcos}
 \alias{mle_stcos}
-\alias{mle_stcos_v2}
 \title{MLE for STCOS Model}
 \usage{
-mle_stcos(z, v, H, S, K, init = NULL, optim_control = list(),
-  optim_method = "L-BFGS-B")
-
-mle_stcos_v2(z, v, H, S, K, init = NULL, optim_control = list(),
-  optim_method = "L-BFGS-B")
+mle_stcos(
+  z,
+  v,
+  H,
+  S,
+  K,
+  init = NULL,
+  optim_control = list(),
+  optim_method = "L-BFGS-B"
+)
 }
 \arguments{
 \item{z}{Vector which represents the outcome; assumed to be direct

@@ -9,7 +9,19 @@
 \alias{acs5_2016}
 \alias{acs5_2017}
 \title{Shapes and ACS estimates for Boone County, MO.}
-\format{\code{sf} objects.}
+\format{
+\code{sf} objects.
+
+An object of class \code{sf} (inherits from \code{data.frame}) with 87 rows and 9 columns.
+
+An object of class \code{sf} (inherits from \code{data.frame}) with 87 rows and 9 columns.
+
+An object of class \code{sf} (inherits from \code{data.frame}) with 85 rows and 9 columns.
+
+An object of class \code{sf} (inherits from \code{data.frame}) with 87 rows and 9 columns.
+
+An object of class \code{sf} (inherits from \code{data.frame}) with 87 rows and 9 columns.
+}
 \usage{
 acs5_2013
 

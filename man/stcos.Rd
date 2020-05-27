@@ -3,7 +3,6 @@
 \docType{package}
 \name{stcos}
 \alias{stcos}
-\alias{stcos-package}
 \title{stcos: Space-Time Change of Support}
 \description{
 An R Package for Space-Time Change of Support (STCOS) modeling.
@@ -24,6 +23,6 @@ support. In JSM Proceedings, Government Statistics Section. Alexandria,
 VA: American Statistical Association, pp.1524-1540.
 
 Andrew M. Raim, Scott H. Holan, Jonathan R. Bradley, and Christopher K.
-Wikle (2019+). An R package for spatio-temporal change of support.
+Wikle (2020+). Spatio-Temporal Change of Support Modeling with R.
 \url{https://arxiv.org/abs/1904.12092}.
 }

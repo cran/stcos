@@ -9,8 +9,20 @@
 \alias{predict.stcos_gibbs}
 \title{Gibbs Sampler for STCOS Model}
 \usage{
-gibbs_stcos(z, v, H, S, Kinv, R, report_period = R + 1, burn = 0,
-  thin = 1, init = NULL, fixed = NULL, hyper = NULL)
+gibbs_stcos(
+  z,
+  v,
+  H,
+  S,
+  Kinv,
+  R,
+  report_period = R + 1,
+  burn = 0,
+  thin = 1,
+  init = NULL,
+  fixed = NULL,
+  hyper = NULL
+)
 
 \method{logLik}{stcos_gibbs}(object, ...)
 

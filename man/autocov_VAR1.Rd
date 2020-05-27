@@ -29,11 +29,12 @@ Computes the autocovariance matrix \eqn{\bm{\Gamma}(h)} of the
   \bm{\epsilon}_t \sim \textrm{N}(\bm{0}, \bm{\Sigma})
 }
 
-For the required computation of \eqn{\bm{\Gamma}(0)}, this function avoids
-directly solving the \eqn{m^2 \times m^2} system
+For the required computation of \eqn{\bm{\Gamma}(0)}, this function
+solves the \eqn{m^2 \times m^2} system
 \deqn{
 \textrm{vec}(\bm{\Gamma}(0)) = [\bm{I} - \bm{A} \otimes \bm{A}]^{-1} \textrm{vec}(\bm{\Sigma}).
 }
+without directly computing \eqn{m^2 \times m^2} matrices.
 }
 \examples{
 U = matrix(NA, 3, 3)

@@ -4,8 +4,7 @@
 \alias{prepare_stcos_demo}
 \title{Prepare Demo Data for STCOS Model}
 \usage{
-prepare_stcos_demo(num_knots_sp = 200, basis_mc_reps = 200,
-  eigval_prop = 0.65)
+prepare_stcos_demo(num_knots_sp = 200, basis_mc_reps = 200, eigval_prop = 0.65)
 }
 \arguments{
 \item{num_knots_sp}{Number of spatial knots to use in areal space-time
@@ -29,6 +28,7 @@ A list containing the following:
 }
 \description{
 Create demo data based on ACS example, making a few simple model choices.
+The purpose of this function is to facilitate examples in other functions.
 Uses functions in the package to create model terms from shapefiles.
 }
 \examples{

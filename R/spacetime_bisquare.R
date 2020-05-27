@@ -1,58 +1,73 @@
-#' SpaceTime Bisquare Basis
+#' Space-Time Bisquare Basis
 #' 
-#' An \code{R6Class} representing the space-time bisquare basis.
+#' @description
+#' Space-time bisquare basis on point data.
 #' 
-#' @section Usage:
-#' \preformatted{
-#' bs = SpaceTimeBisquareBasis$new(knots_x, knots_y, knots_t,
-#'     w_s, w_t)
-#' bs$compute(x, y, time)
-#' bs$get_dim()
-#' bs$get_cutpoints()
-#' bs$get_ws()
-#' bs$get_wt()
-#' }
-#' 
-#' @section Arguments:
-#' \itemize{
-#' \item \code{knots_x} numeric vector; x-coordinates of knot points.
-#' \item \code{knots_y} numeric vector; y-coordinates of knot points.
-#' \item \code{knots_t} numeric vector; time coordinate of knot points.
-#' \item \code{w_s} numeric; spatial radius for the basis.
-#' \item \code{w_t} numeric; temporal radius for the basis.
-#' \item \code{x} numeric vector; x-coordinates for points to evaluate.
-#' \item \code{y} numeric vector; y-coordinates for points to evaluate.
-#' \item \code{time} numeric vector; time coordinates for points to evaluate.
-#' }
-#' 
-#' @section Methods:
-#' \itemize{
-#' \item \code{new} Create a new \code{SpaceTimeBisquareBasis} object.
-#' \item \code{get_dim} Get the number of cutpoints used to construct this basis.
-#' \item \code{get_cutpoints} Get the cutpoints used to construct this basis.
-#' \item \code{get_ws} Get the spatial radius used to construct this basis.
-#' \item \code{get_wt} Get the temporal radius used to construct this basis.
-#' \item \code{compute} Evaluate this basis on specific points.
-#' }
+#' @param dom Space-time points \eqn{(\bm{u}_1,v_1), \ldots, (\bm{u}_n,v_n)}
+#' to evaluate. See "Details".
+#' @param knots Spatio-temporal knots
+#' \eqn{(\bm{c}_1,g_1), \ldots, (\bm{c}_r,g_r)}
+#' for the basis. See "Details".
+#' @param w_s Spatial radius for the basis.
+#' @param w_t Temporal radius for the basis.
 #'
-#' @name SpaceTimeBisquareBasis
+#' @return A sparse \eqn{n \times r} matrix whose \eqn{i}th row
+#' is
+#' \deqn{
+#' \bm{s}_i^\top =
+#' \Big(
+#' \psi_1(\bm{u}_i,v_i), \ldots, \psi_r(\bm{u}_i,v_i)
+#' \Big).
+#' }
+#' 
+#' @details
+#' Notes about arguments:
+#' \itemize{
+#' \item Both \code{dom} and \code{knots} may be provided as either \code{sf} or
+#'   \code{sfc} objects, or as matrices of points.
+#' \item If an \code{sf} or \code{sfc} object is provided for \code{dom}, \eqn{n}
+#'   three-dimensional \code{POINT} entries are expected in \code{st_geometry(dom)}.
+#'   Otherwise, \code{dom} will be interpreted as an \eqn{n \times 3} numeric matrix.
+#' \item If an \code{sf} or \code{sfc} object is provided for \code{knots}, \eqn{r}
+#'   three-dimensional \code{POINT} entries are expected in \code{st_geometry(knots)}.
+#'   Otherwise, \code{knots} will be interpreted as an \eqn{r \times 3} numeric matrix.
+#' \item If both \code{dom} and \code{knots_s} are given as \code{sf} or \code{sfc} objects,
+#'   they will be checked to ensure a common coordinate system.
+#' }
+#' 
+#' For each \eqn{(\bm{u}_i,v_i)}, compute the basis functions
+#' \deqn{
+#' \psi_j(\bm{u},v) =
+#' \left[ 2 - \frac{\Vert \bm{u} - \bm{c}_j \Vert^2}{w_s^2}- \frac{|v - g_j|^2}{w_t^2} \right]^2  \cdot
+#' I(\Vert \bm{u} - \bm{c}_j \Vert \leq w_s) \cdot
+#' I(|v - g_j| \leq w_t)
+#' }
+#' for \eqn{j = 1, \ldots, r}.
+#' 
+#' Due to the treatment of \eqn{\bm{u}_i} and \eqn{\bm{c}_j} as points in a
+#' Euclidean space, this basis is more suitable for coordinates from a map
+#' projection than coordinates based on a globe representation.
 #' 
 #' @examples
 #' set.seed(1234)
+#' 
+#' # Create knot points
 #' seq_x = seq(0, 1, length.out = 3)
 #' seq_y = seq(0, 1, length.out = 3)
 #' seq_t = seq(0, 1, length.out = 3)
-#' knots = expand.grid(seq_x, seq_y, seq_t)
+#' knots = expand.grid(x = seq_x, y = seq_y, t = seq_t)
+#' knots_sf = st_as_sf(knots, coords = c("x","y","t"), crs = NA, dim = "XYM", agr = "constant")
+#' 
+#' # Points to evaluate
 #' x = runif(50)
 #' y = runif(50)
 #' t = sample(1:3, size = 50, replace = TRUE)
+#' pts = data.frame(x = x, y = y, t = t)
+#' dom = st_as_sf(pts, coords = c("x","y","t"), crs = NA, dim = "XYM", agr = "constant")
 #' 
-#' bs = SpaceTimeBisquareBasis$new(knots[,1], knots[,2], knots[,3], w_s = 0.5, w_t = 1)
-#' bs$compute(x, y, t)
-#' bs$get_dim()
-#' bs$get_cutpoints()
-#' bs$get_ws()
-#' bs$get_wt()
+#' rad = 0.5
+#' spacetime_bisquare(cbind(x,y,t), knots, w_s = rad, w_t = 1)
+#' spacetime_bisquare(dom, knots_sf, w_s = rad, w_t = 1)
 #' 
 #' # Plot the (spatial) knots and the points at which we evaluated the basis
 #' plot(knots[,1], knots[,2], pch = 4, cex = 1.5, col = "red")
@@ -60,48 +75,15 @@
 #' 
 #' # Draw a circle representing the basis' radius around one of the knot points
 #' tseq = seq(0, 2*pi, length=100) 
-#' rad = bs$get_ws()
 #' coords = cbind(rad * cos(tseq) + seq_x[2], rad * sin(tseq) + seq_y[2])
 #' lines(coords, col = "red")
-NULL
-
+#' 
+#' @family bisquare
 #' @export
-#' @docType class
-SpaceTimeBisquareBasis = R6Class("SpaceTimeBisquareBasis",
-	lock_objects = TRUE,
-	lock_class = TRUE,
-	private = list(
-		r = NULL,
-		cutpoints = NULL,
-		w_s = NULL,
-		w_t = NULL
-	),
-	public = list(
-		initialize = function(knots_x, knots_y, knots_t, w_s, w_t) {
-			r = length(knots_x)
-			stopifnot(length(knots_y) == r)
-			stopifnot(length(knots_t) == r)
-			private$cutpoints = cbind(knots_x, knots_y, knots_t)
-			private$w_s = w_s
-			private$w_t = w_t
-			private$r = r
-		},
-		get_dim = function() {
-			private$r
-		},
-		get_cutpoints = function() {
-			private$cutpoints
-		},
-		get_ws = function() {
-			private$w_s
-		},
-		get_wt = function() {
-			private$w_t
-		},
-		compute = function(x, y, time) {
-			X = cbind(x, y, time)
-			S = compute_basis_spt(X, private$cutpoints, private$w_s, private$w_t)
-			return(S)
-		}
-	)
-)
+spacetime_bisquare = function(dom, knots, w_s, w_t)
+{
+	prep = prepare_bisquare(dom, knots, type = "point")
+	out = compute_basis_spt(prep$X, prep$knot_mat, w_s, w_t)
+	sparseMatrix(i = out$ind_row + 1, j = out$ind_col + 1, x = out$values,
+		dims = out$dim)
+}

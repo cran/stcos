@@ -4,7 +4,9 @@
 \name{columbia_neighbs}
 \alias{columbia_neighbs}
 \title{City of Columbia neighborhoods.}
-\format{An \code{sf} object with 4 features (neighborhoods).}
+\format{
+An \code{sf} object with 4 features (neighborhoods).
+}
 \usage{
 columbia_neighbs
 }

@@ -6,6 +6,11 @@
 
 using namespace Rcpp;
 
+#ifdef RCPP_USE_GLOBAL_ROSTREAM
+Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
+Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
+#endif
+
 // compute_basis_sp
 Rcpp::List compute_basis_sp(const Rcpp::NumericMatrix& X, const Rcpp::NumericMatrix& cc, double w);
 RcppExport SEXP _stcos_compute_basis_sp(SEXP XSEXP, SEXP ccSEXP, SEXP wSEXP) {
